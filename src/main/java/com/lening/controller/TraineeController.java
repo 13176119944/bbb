@@ -31,6 +31,7 @@ public class TraineeController {
         System.out.println(traineeVo);
         return traineeVo;
     }
+    //aaaaaaaaaaaaaaaaaaaaaaaaa
     @RequestMapping("/saveTrainee")
     public ResultInfo saveTrainee(Integer tid, RecordBean record){
         try {
