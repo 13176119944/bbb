@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lening.mapper.TraineeMapper">
+  <resultMap id="BaseResultMap" type="com.lening.entity.TraineeBean">
+    <id column="tid" jdbcType="INTEGER" property="tid" />
+    <result column="tname" jdbcType="VARCHAR" property="tname" />
+    <result column="tsex" jdbcType="VARCHAR" property="tsex" />
+    <result column="age" jdbcType="INTEGER" property="age" />
+    <result column="tindate" jdbcType="DATE" property="tindate" />
+  </resultMap>
+
+  <select id="selectTraineeVoByTid" resultType="TraineeVo">
+         SELECT
+        t.tid,
+            r.rduration
+        FROM
+        trainee t
+        LEFT JOIN coach c on c.cid = t.cid
+        LEFT JOIN tb_record_trainee rt on rt.traineeid=t.tid
+        LEFT JOIN record r on r.rid = rt.recordid
+        where t.tid=#{value}
+  </select>
+
+  <select id="getTraineeVo" resultType="TraineeVo">
+        SELECT
+	    t.*,
+        c.*,
+        r.rduration
+        FROM
+            trainee t
+        LEFT JOIN coach c on c.cid = t.cid
+        LEFT JOIN tb_record_trainee rt on rt.traineeid=t.tid
+        LEFT JOIN record r on r.rid = rt.recordid
+    <where >
+      <if test="value!='' and value !=null">
+         t.tname LIKE CONCAT('%',#{value},'%')
+      </if>
+    </where>
+        ORDER BY t.tindate asc
+  </select>
+
+  <select id="selectAlll" resultType="TraineeVo">
+    SELECT
+    t.*,
+    c.*,
+    r.rduration
+    FROM
+    trainee t
+    LEFT JOIN coach c on c.cid = t.cid
+    LEFT JOIN tb_record_trainee rt on rt.traineeid=t.tid
+    LEFT JOIN record r on r.rid = rt.recordid
+    ORDER BY t.tindate asc
+  </select>
+
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    tid, tname, tsex, age, tindate
+  </sql>
+  <select id="selectByExample" parameterType="com.lening.entity.TraineeBeanExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from trainee
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from trainee
+    where tid = #{tid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from trainee
+    where tid = #{tid,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.lening.entity.TraineeBeanExample">
+    delete from trainee
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.lening.entity.TraineeBean">
+    insert into trainee (tid, tname, tsex, 
+      age, tindate)
+    values (#{tid,jdbcType=INTEGER}, #{tname,jdbcType=VARCHAR}, #{tsex,jdbcType=VARCHAR}, 
+      #{age,jdbcType=INTEGER}, #{tindate,jdbcType=DATE})
+  </insert>
+  <insert id="insertSelective" parameterType="com.lening.entity.TraineeBean">
+    insert into trainee
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="tid != null">
+        tid,
+      </if>
+      <if test="tname != null">
+        tname,
+      </if>
+      <if test="tsex != null">
+        tsex,
+      </if>
+      <if test="age != null">
+        age,
+      </if>
+      <if test="tindate != null">
+        tindate,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="tid != null">
+        #{tid,jdbcType=INTEGER},
+      </if>
+      <if test="tname != null">
+        #{tname,jdbcType=VARCHAR},
+      </if>
+      <if test="tsex != null">
+        #{tsex,jdbcType=VARCHAR},
+      </if>
+      <if test="age != null">
+        #{age,jdbcType=INTEGER},
+      </if>
+      <if test="tindate != null">
+        #{tindate,jdbcType=DATE},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.lening.entity.TraineeBeanExample" resultType="java.lang.Long">
+    select count(*) from trainee
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update trainee
+    <set>
+      <if test="record.tid != null">
+        tid = #{record.tid,jdbcType=INTEGER},
+      </if>
+      <if test="record.tname != null">
+        tname = #{record.tname,jdbcType=VARCHAR},
+      </if>
+      <if test="record.tsex != null">
+        tsex = #{record.tsex,jdbcType=VARCHAR},
+      </if>
+      <if test="record.age != null">
+        age = #{record.age,jdbcType=INTEGER},
+      </if>
+      <if test="record.tindate != null">
+        tindate = #{record.tindate,jdbcType=DATE},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update trainee
+    set tid = #{record.tid,jdbcType=INTEGER},
+      tname = #{record.tname,jdbcType=VARCHAR},
+      tsex = #{record.tsex,jdbcType=VARCHAR},
+      age = #{record.age,jdbcType=INTEGER},
+      tindate = #{record.tindate,jdbcType=DATE}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.lening.entity.TraineeBean">
+    update trainee
+    <set>
+      <if test="tname != null">
+        tname = #{tname,jdbcType=VARCHAR},
+      </if>
+      <if test="tsex != null">
+        tsex = #{tsex,jdbcType=VARCHAR},
+      </if>
+      <if test="age != null">
+        age = #{age,jdbcType=INTEGER},
+      </if>
+      <if test="tindate != null">
+        tindate = #{tindate,jdbcType=DATE},
+      </if>
+    </set>
+    where tid = #{tid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.lening.entity.TraineeBean">
+    update trainee
+    set tname = #{tname,jdbcType=VARCHAR},
+      tsex = #{tsex,jdbcType=VARCHAR},
+      age = #{age,jdbcType=INTEGER},
+      tindate = #{tindate,jdbcType=DATE}
+    where tid = #{tid,jdbcType=INTEGER}
+  </update>
+</mapper>

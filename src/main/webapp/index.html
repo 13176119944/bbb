@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="text/javascript" src="vuejs/vuejs-2.5.16.js"></script>
+    <script type="text/javascript" src="vuejs/axios-0.18.0.js"></script>
+</head>
+<body>
+<div id="traineediv">
+    <table border="1" bgcolor="#ffb6c1" width="70%">
+        <tr>
+            <td colspan="17">
+                姓名：<input type="text" v-model="entity.tname">
+                     <button @click="getTraineeList()">搜索</button>
+            </td>
+        </tr>
+        <tr>
+            <th>学员编号</th>
+            <th>学员姓名</th>
+            <th>学员性别</th>
+            <th>学员年龄</th>
+            <th>学员报名日期</th>
+            <th>在学科目</th>
+            <th>教练编号</th>
+            <th>教练姓名</th>
+            <th>教练生日</th>
+            <th>教练性别</th>
+            <th>操作</th>
+        </tr>
+        <tr v-for="t in traineelist">
+            <td>{{t.tid}}</td>
+            <td>{{t.tname}}</td>
+            <td>{{t.tsex}}</td>
+            <td>{{t.age}}</td>
+            <td>{{t.tindate}}</td>
+            <td>
+                <span v-if="t.rduration==4">
+                    科目一
+                </span>
+                <span v-if="t.rduration==8">
+                    科目二
+                </span>
+                <span v-if="t.rduration==16">
+                    科目三
+                </span>
+                <span v-if="t.rduration==20">
+                    科目四
+                </span>
+            </td>
+            <td>{{t.cid}}</td>
+            <td>{{t.cname}}</td>
+            <td>{{t.cbirth}}</td>
+            <td>{{t.csex}}</td>
+            <td><button @click="toAddTrainee(t.tid)">添加时长</button></td>
+        </tr>
+        <tr>
+            <td colspan="17">
+                当前{{page.currentPage}}页，共{{page.pageCount}}页；
+                <button @click="paging(1)">首页</button>
+                <button @click="paging(page.previousPage)">上一页</button>
+                <button @click="paging(page.nextPage)">下一页</button>
+                <button @click="paging(page.pageCount)">尾页</button>
+            </td>
+        </tr>
+    </table>
+    <div id="addTrainee" style="display: none" >
+            学员编号:<input type="text" v-model="traineeEntity.tid"  id="aa"><br>
+            学习科目:
+                <span v-if="traineeEntity.rduration==4" v-model="tEntity.rduration" >
+                    <input type="text" value="科目一">
+                </span>
+                <span v-if="traineeEntity.rduration==8" v-model="tEntity.rduration">
+                    <input type="text" value="科目二">
+                </span>
+                <span v-if="traineeEntity.rduration==12" v-model="tEntity.rduration">
+                    <input type="text" value="科目三">
+                </span>
+                <span v-if="traineeEntity.rduration==16" v-model="tEntity.rduration">
+                    <input type="text" value="科目四">
+                </span>
+          <br>
+            学车日期:<input type="date" v-model="record.rdate"><br>
+            学车时长: <select v-model="record.rduration">
+                <option>4</option>
+                 <option>8</option>
+                 <option>16</option>
+                 <option>20</option>
+            </select><br>
+            <button @click="addTrainee()">保存</button>
+    </div>
+</div>
+</body>
+</html>
+<script type="text/javascript">
+    var vm = new Vue({
+        el:"#traineediv",
+        data:{
+            traineelist:[],
+            entity:{},
+            pageNum:1,
+            pageSize:3,
+            page:[],
+            traineeEntity:{},
+            tid:0,
+            record:{}
+        },
+        methods:{
+            getTraineeList:function () {
+                var _this = this;
+                axios.post("/trainee/getTraineeList.do?pageNum="+_this.pageNum+"&pageSize="+_this.pageSize,_this.entity).then(function (response) {
+                    _this.traineelist = response.data.list;
+                    _this.pageNum = response.data.currentPage;
+                    _this.pageSize = response.data.pageSize;
+                    _this.page = response.data;
+                });
+            },
+            paging:function (pageNum) {
+                this.pageNum = pageNum;
+                this.getTraineeList();
+            },
+            toAddTrainee:function (tid) {
+                var _this = this;
+                axios.get("/trainee/toAddTrainee.do?tid="+tid).then(function (response) {
+                 _this.traineeEntity=response.data;
+                 _this.tid=response.data.tid;
+                });
+                document.getElementById("addTrainee").style.display="block";
+            },
+            addTrainee:function () {
+                var _this= this;
+                var tid = document.getElementById("aa").value;
+                axios.post("/trainee/saveTrainee.do?tid="+tid,_this.record).then(function (response) {
+                    if(response.data.flag){
+                        alert(response.data.msg);
+                        document.getElementById("addTrainee").style.display="none";
+                    }else{
+                        alert(response.data.msg);
+                    }
+                })
+            }
+        }
+    });
+    vm.getTraineeList();
+</script>
